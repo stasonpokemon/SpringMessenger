@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charet=UTF-8"/>
+    <title>Login</title>
+</head>
+<body>
+Login page
+<form action="/login" method="post">
+    <div>
+        <div><label>User name: <input type="text" name="username"/></label></div>
+        <div><label>Password: <input type="text" name="password"/></label></div>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}">
+        <div><input type="submit" value="Sign in"></div>
+    </div>
+</form>
+<a href="/registration">Add new user</a>
+</body>
+</html>
