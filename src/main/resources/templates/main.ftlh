@@ -3,6 +3,7 @@
 <@c.page>
 <div>
     <@l.logiout/>
+    <span><a href="/user">User list</a></span>
 </div>
 
 <div>
