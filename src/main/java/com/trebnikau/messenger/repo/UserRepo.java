@@ -6,4 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface UserRepo extends CrudRepository<User, Long> {
 
     User findUserByUsername(String userName);
+    User findUserByActivationCode(String activationCode);
+    User findUserByEmail(String email);
 }

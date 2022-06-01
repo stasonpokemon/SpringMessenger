@@ -20,6 +20,15 @@
                 <a href="/registration">Add new user</a>
             </#if>
 
+            <#if isRegisterForm>
+                <div class="form-group">
+                    <label class="col=sm-2 col-form-label">Email</label>
+                    <div class="col-sm-6">
+                        <input type="email" name="email" class="form-control" placeholder="Email"/>
+                    </div>
+                </div>
+            </#if>
+
             <button type="submit" class="btn btn-primary">
                 <#if isRegisterForm>
                     Create
