@@ -4,6 +4,7 @@ import com.trebnikau.messenger.entity.Role;
 import com.trebnikau.messenger.entity.User;
 import com.trebnikau.messenger.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +20,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
 
+//    @Value("${server.port}")
+//    private String serverPort;
+
     @Autowired
     private MailSenderService mailSenderService;
 
@@ -27,11 +31,13 @@ public class UserService implements UserDetailsService {
         return userRepo.findUserByUsername(username);
     }
 
-    public boolean addUser(User user, String email) {
+    public int addUser(User user, String email) {
         User userFromDBByUsername = userRepo.findUserByUsername(user.getUsername());
         User userFromDBByEmail = userRepo.findUserByEmail(email);
-        if (userFromDBByUsername != null || userFromDBByEmail != null) {
-            return false;
+        if (userFromDBByUsername != null) {
+            return -1;
+        }else if(userFromDBByEmail != null){
+            return  0;
         }
         user.setActive(false);
         user.setRoles(Collections.singleton(Role.USER));
@@ -40,11 +46,11 @@ public class UserService implements UserDetailsService {
 
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format("Hello, %s!/n" +
-                            "Welcome to Messenger. Please, visit next link: http://localhost:8080/activate/%s",
+                            "Welcome to Messenger. Please, visit next link: http://localhost:8081/activate/%s",
                     user.getUsername(), user.getActivationCode());
             mailSenderService.send(user.getEmail(), "Activation Code", message);
         }
-        return true;
+        return 1;
     }
 
     public boolean activateUser(String code) {
