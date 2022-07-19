@@ -1,5 +1,6 @@
 package com.trebnikau.messenger.entity;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,7 +13,8 @@ import java.util.Set;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.AUTO/*, generator = "native"*/)
+//    @GenericGenerator(name = "native", strategy = "native")
     private Long id;
     private String username;
     private String password;

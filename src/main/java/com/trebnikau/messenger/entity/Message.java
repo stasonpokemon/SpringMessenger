@@ -1,5 +1,7 @@
 package com.trebnikau.messenger.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,8 +10,9 @@ public class Message {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy=GenerationType.AUTO/*, generator = "native"*/)
+//    @GenericGenerator(name = "native", strategy = "native")
+    private Long id;
     private String text;
     private String tag;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -38,11 +41,11 @@ public class Message {
         this.fileName = fileName;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
