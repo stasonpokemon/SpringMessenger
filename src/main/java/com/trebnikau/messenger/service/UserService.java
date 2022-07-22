@@ -4,9 +4,11 @@ import com.trebnikau.messenger.entity.Role;
 import com.trebnikau.messenger.entity.User;
 import com.trebnikau.messenger.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,15 +21,23 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
 
-//    @Value("${server.port}")
-//    private String serverPort;
+    @Value("${server.port}")
+    private String serverPort;
 
     @Autowired
     private MailSenderService mailSenderService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findUserByUsername(username);
+        User user = userRepo.findUserByUsername(username);
+        if (user == null){
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
+
     }
 
     public int addUser(User user, String email) {
@@ -41,6 +51,8 @@ public class UserService implements UserDetailsService {
         user.setActive(false);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
+        // шифрование пароля
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
 
         sendMessage(user);
@@ -93,7 +105,7 @@ public class UserService implements UserDetailsService {
         }
 
         if (!StringUtils.isEmpty(password)) {
-            user.setPassword(password);
+            user.setPassword(passwordEncoder.encode(password));
         }
 
         userRepo.save(user);
@@ -108,8 +120,9 @@ public class UserService implements UserDetailsService {
 
     private void sendMessage(User user) {
         if (!StringUtils.isEmpty(user.getEmail())) {
-            String message = String.format("Hello, %s!/n" +
-                            "Welcome to Messenger. Please, visit next link: http://localhost:8081/activate/%s",
+            String message = String.format("Hello, %s!\n" +
+//                            "Welcome to Messenger. Please, visit next link: http://localhost:" + serverPort + "/activate/%s",
+                    "Welcome to Messenger. Please, visit next link: http://localhost:8080/activate/%s",
                     user.getUsername(), user.getActivationCode());
             mailSenderService.send(user.getEmail(), "Activation Code", message);
         }

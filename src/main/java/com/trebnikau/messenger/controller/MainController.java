@@ -8,15 +8,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
@@ -50,33 +55,46 @@ public class MainController {
     public String addMessage(
             // В эту аннотацию попадает user, который добавляет сообщение
             @AuthenticationPrincipal User user,
-            @RequestParam(name = "text") String text,
-            @RequestParam(name = "tag") String tag,
+//            @RequestParam(name = "text") String text,
+//            @RequestParam(name = "tag") String tag,
+            @Valid Message message,
+            BindingResult bindingResult, // хранит в себе список аргументов и сообщения ошибок валидации(должен стоять перед model)
+            Model model,
             // Поле связанное с файлом
-            @RequestParam("file") MultipartFile file,
-            Map<String, Object> model) throws IOException {
-        Message message = new Message(text, tag, user);
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+//        Message message = new Message(text, tag, user);
 
-        if (!file.isEmpty()){
-            File uploadDir = new File(uploadPath);
+        message.setAuthor(user);
+        // Если у нас есть ошибки, то сообщение не созранится
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorsMap = UtilsController.getErrors(bindingResult);
+            model.mergeAttributes(errorsMap);
+            model.addAttribute("message", message);
+        } else {
+            if (!file.isEmpty()) {
+                File uploadDir = new File(uploadPath);
 //            Если данной папки не существует, то мы её создаём
-            if (!uploadDir.exists()){
-                uploadDir.mkdir();
-            }
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdir();
+                }
 //            Создаём уникальное имя для файла
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + file.getOriginalFilename();
+                String uuidFile = UUID.randomUUID().toString();
+                String resultFileName = uuidFile + "." + file.getOriginalFilename();
 //            Загрузка файла
-            file.transferTo(new File(uploadPath + "/" + resultFileName));
+                file.transferTo(new File(uploadPath + "/" + resultFileName));
 
-            message.setFileName(resultFileName);
+                message.setFileName(resultFileName);
+            }
+            // если валидация прошла успешно нужно удалить message из model, иначе, после добавления мы опять получим открытую форму с сообщением, которое мы пытались добавить
+            model.addAttribute("message", null);
+            messageRepo.save(message);
         }
-
-        messageRepo.save(message);
         Iterable<Message> messages = messageRepo.findAll();
-        model.put("messages", messages);
+        model.addAttribute("messages", messages);
 //        model.put("filter", "");
-        return "redirect:/main";
+
+        return "main";
     }
 
 

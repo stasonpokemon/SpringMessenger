@@ -1,8 +1,11 @@
 package com.trebnikau.messenger.entity;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+
 
 @Entity
 @Table(name = "messages")
@@ -13,7 +16,10 @@ public class Message {
     @GeneratedValue(strategy=GenerationType.AUTO/*, generator = "native"*/)
 //    @GenericGenerator(name = "native", strategy = "native")
     private Long id;
+    @NotBlank(message = "Please fill the message")
+    @Length(max = 2048, message = "Message too long. Max length is 2048")
     private String text;
+    @Length(max = 255, message = "Tag too long. Max length is 255")
     private String tag;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

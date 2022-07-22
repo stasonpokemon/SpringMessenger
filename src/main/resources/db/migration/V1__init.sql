@@ -3,10 +3,10 @@ create table hibernate_sequence
     next_val bigint
 ) engine=MyISAM;
 insert into hibernate_sequence
-values (1);
+values (2);
 create table messages
 (
-    id        bigint not null,
+    id        bigint not null AUTO_INCREMENT,
     file_name varchar(255),
     tag       varchar(255),
     text      varchar(2048),
@@ -20,7 +20,7 @@ create table user_role
 ) engine=MyISAM;
 create table usr
 (
-    id              bigint       not null,
+    id              bigint       not null AUTO_INCREMENT,
     activation_code varchar(255),
     active          bit          not null,
     email           varchar(255),
