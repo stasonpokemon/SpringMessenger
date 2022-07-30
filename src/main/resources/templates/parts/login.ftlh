@@ -48,6 +48,14 @@
                         </#if>
                     </div>
                 </div>
+                <div class="col-sm-6">
+                    <div class="g-recaptcha" data-sitekey="6LdF0C4hAAAAAM6INob-XQcO4ok00RO1q35R-RI6"></div>
+                    <#if captchaError??>
+                        <div class="alert alert-danger" role="alert">
+                            ${captchaError}
+                        </div>
+                    </#if>
+                </div>
             </#if>
 
             <input type="hidden" name="_csrf" value="${_csrf.token}">
@@ -73,3 +81,11 @@
         <input type="hidden" name="_csrf" value="${_csrf.token}">
     </form>
 </#macro>
+
+<#macro loginButton>
+    <form action="/login" method="post">
+    <button type="submit" class="btn btn-primary">Sign in</button>
+    <input type="hidden" name="_csrf" value="${_csrf.token}">
+    </form>
+</#macro>
+

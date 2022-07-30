@@ -33,7 +33,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findUserByUsername(username);
-        if (user == null){
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
         return user;
@@ -94,8 +94,8 @@ public class UserService implements UserDetailsService {
 
     public void updateProfile(User user, String password, String email) {
         String userEmail = user.getEmail();
-        boolean isEmailChanged = ((email != null && !email.equals(userEmail)) ||
-                (userEmail != null && !userEmail.equals(email)));
+        boolean isEmailChanged = ((!StringUtils.isEmpty(email)/* && email != null*/ && !email.equals(userEmail)) ||
+                (!StringUtils.isEmpty(email)/*userEmail != null */&& !userEmail.equals(email)));
         if (isEmailChanged) {
             user.setEmail(email);
             if (!StringUtils.isEmpty(email)) {
@@ -122,7 +122,7 @@ public class UserService implements UserDetailsService {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format("Hello, %s!\n" +
 //                            "Welcome to Messenger. Please, visit next link: http://localhost:" + serverPort + "/activate/%s",
-                    "Welcome to Messenger. Please, visit next link: http://localhost:8080/activate/%s",
+                            "Welcome to Messenger. Please, visit next link: http://localhost:8080/activate/%s",
                     user.getUsername(), user.getActivationCode());
             mailSenderService.send(user.getEmail(), "Activation Code", message);
         }

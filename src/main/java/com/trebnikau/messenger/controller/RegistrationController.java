@@ -1,8 +1,11 @@
 package com.trebnikau.messenger.controller;
 
 import com.trebnikau.messenger.entity.User;
+import com.trebnikau.messenger.entity.dto.CaptchaResponseDto;
 import com.trebnikau.messenger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -11,12 +14,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.Map;
 
 @Controller
 public class RegistrationController {
+
+    private static final String CAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
+
+    @Value("${recaptcha.secret}")
+    private String recaptchaSecret;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
     private UserService userService;
@@ -29,13 +42,20 @@ public class RegistrationController {
     @PostMapping("/registration")
     public String addUser(
             @RequestParam("password2") String passwordConfirmation,
+            @RequestParam("g-recaptcha-response") String captchaResponse,
             @Valid User user,
             BindingResult bindingResult,
             Model model) {
+        // заполняем captcha url параметрами
+        String url = String.format(CAPTCHA_URL, recaptchaSecret, captchaResponse);
+        CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
+        if (!response.isSuccess()) {
+            model.addAttribute("captchaError", "Fill captcha");
+        }
 
         boolean isConfirmEmpty = StringUtils.isEmpty(passwordConfirmation);
-        if (StringUtils.isEmpty(passwordConfirmation)){
-            model.addAttribute("password2Error","Password confirmation can't be empty");
+        if (StringUtils.isEmpty(passwordConfirmation)) {
+            model.addAttribute("password2Error", "Password confirmation can't be empty");
         }
 
         // Проверка на сходство двух введённых паролей
@@ -46,7 +66,7 @@ public class RegistrationController {
         }
 
 
-        if (isConfirmEmpty || bindingResult.hasErrors()) {
+        if (isConfirmEmpty || bindingResult.hasErrors() || !response.isSuccess()) {
             Map<String, String> errors = UtilsController.getErrors(bindingResult);
             model.mergeAttributes(errors);
             return "registration";
@@ -66,17 +86,23 @@ public class RegistrationController {
     }
 
     @GetMapping("/activate/{code}")
-    public String activate(Model model, @PathVariable("code") String code) {
+    public String activate(@AuthenticationPrincipal User user,
+                           Model model,
+                           @PathVariable("code") String code) {
         System.out.println("123");
+        if (user != null) {
+            if (user.isActive()) {
+                return "main";
+            }
+        }
         boolean isActivate = userService.activateUser(code);
         if (isActivate) {
             model.addAttribute("messageType", "success");
-            model.addAttribute("message", "User successfully activated");
+            model.addAttribute("messageForLogin", "User successfully activated");
         } else {
             model.addAttribute("messageType", "danger");
-            model.addAttribute("message", "Activation code is not found");
+            model.addAttribute("messageForLogin", "Activation code is not found");
         }
-
         return "login";
     }
 }

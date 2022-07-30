@@ -9,7 +9,7 @@
             <div class="form-group">
                 <label class="col=sm-2 col-form-label">Password: </label>
                 <div class="col-sm-6">
-                    <input ype="text" name="password" class="form-control" placeholder="Password"/>
+                    <input type="text" name="password" class="form-control" placeholder="Password"/>
                 </div>
             </div>
             <input type="hidden" name="_csrf" value="${_csrf.token}">
@@ -17,7 +17,12 @@
             <div class="form-group">
                 <label class="col=sm-2 col-form-label">Email</label>
                 <div class="col-sm-6">
-                    <input type="email" name="email" class="form-control" placeholder="Email" value="${email!''}"/>
+                    <input type="email" name="email"
+                           class="form-control ${(emailError??)?string('is-invalid','')}"
+                           placeholder="Email" value="${email!''}"/>
+                    <#if emailError??>
+                        ${emailError}
+                    </#if>
                 </div>
             </div>
 

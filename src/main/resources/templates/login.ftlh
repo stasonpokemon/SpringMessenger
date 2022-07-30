@@ -9,7 +9,7 @@
     </#if>
     <#if message??>
         <div class="alert alert-${messageType}" role="alert">
-                ${message}
+                ${messageForLogin}
         </div>
     </#if>
 <@l.login "/login" false/>
