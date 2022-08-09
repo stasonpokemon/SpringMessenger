@@ -34,6 +34,12 @@ alter table user_role
     add constraint FKfpm8swft53ulq2hl11yplpr5 foreign key (user_id) references usr (id);
 
 insert into usr (id, username, password, active)
-VALUES (1, 'admin', '1', true);
+VALUES
+(1, 'admin', '1', true),
+(2, '1', '1', true),
+(3, '2', '1', true);
 insert into user_role (user_id, roles)
-VALUES (1, 'USER'), (1, 'ADMIN');
+VALUES (1, 'USER'),
+(1, 'ADMIN'),
+(2, 'USER'),
+(3, 'USER');

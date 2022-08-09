@@ -87,37 +87,4 @@ public class MainController {
         return "main";
     }
 
-
-//    @GetMapping("/user-messages/{user}")
-//    public String userMessages(@AuthenticationPrincipal User currentUser,
-//                               @PathVariable User user,
-//                               Model model,
-//                               @RequestParam(name = "message", required = false) Message message) {
-//        Set<Message> userMessages = user.getMessages();
-//        model.addAttribute("messages", userMessages);
-//        model.addAttribute("message", message);
-//        model.addAttribute("isCurrentUser", currentUser.equals(user));
-//        return "userMessages";
-//    }
-//
-//    @PostMapping("/user-messages/{user}")
-//    public String updateMessage(@AuthenticationPrincipal User currentUser,
-//                                @PathVariable("user") Long userId,
-//                                @RequestParam("id") Message message,
-//                                @RequestParam("text") String text,
-//                                @RequestParam("tag") String tag,
-//                                @RequestParam("file") MultipartFile file) throws IOException {
-//        if (message.getAuthor().equals(currentUser)) {
-//            if (!StringUtils.isEmpty(text)) {
-//                message.setText(text);
-//            }
-//            if (StringUtils.isEmpty(tag)) {
-//                message.setTag(tag);
-//            }
-//            saveFile(message, file);
-//            messageRepo.save(message);
-//        }
-//        return "redirect:/user-messages/" + userId;
-//    }
-
 }

@@ -78,7 +78,16 @@ public class UserController {
                                @PathVariable User user,
                                Model model,
                                @RequestParam(name = "message", required = false) Message message) {
+        if (message == null) {
+            model.addAttribute("isEdit", false);
+        } else {
+            model.addAttribute("isEdit", true);
+        }
         Set<Message> userMessages = user.getMessages();
+        model.addAttribute("userChannel", user);
+        model.addAttribute("subscriptionCount", user.getSubscriptions().size());
+        model.addAttribute("subscribersCount", user.getSubscribers().size());
+        model.addAttribute("isSubscriber", user.getSubscribers().contains(currentUser));
         model.addAttribute("messages", userMessages);
         model.addAttribute("message", message);
         model.addAttribute("isCurrentUser", currentUser.equals(user));
@@ -103,5 +112,60 @@ public class UserController {
             messageRepo.save(message);
         }
         return "redirect:/user/messages/" + userId;
+    }
+
+    @GetMapping("/subscriptions/{user}")
+    public String showUserSubscription(@PathVariable("user") User userChannel,
+                                       Model model) {
+        Set<User> subscriptions = userChannel.getSubscriptions();
+        model.addAttribute("users", subscriptions);
+        model.addAttribute("userChannel", userChannel);
+//        model.addAttribute("subscriptionCount", userChannel.getSubscriptions().size());
+//        model.addAttribute("subscribersCount", userChannel.getSubscribers().size());
+        return "userList";
+    }
+
+    @GetMapping("/subscribers/{user}")
+    public String showUserSubscribers(@PathVariable("user") User userChannel,
+                                      Model model) {
+        Set<User> subscribers = userChannel.getSubscribers();
+        model.addAttribute("users", subscribers);
+        model.addAttribute("userChannel", userChannel);
+//        model.addAttribute("subscriptionCount", userChannel.getSubscriptions().size());
+//        model.addAttribute("subscribersCount", userChannel.getSubscribers().size());
+        return "userList";
+    }
+
+    @GetMapping("/subscribe/{user}")
+    public String subscribeToUser(@AuthenticationPrincipal User currentUser,
+                                  @PathVariable("user") User user) {
+        userService.subscribe(currentUser, user);
+        return "redirect:/user/messages/" + user.getId();
+    }
+
+    @GetMapping("/unsubscribe/{user}")
+    public String unsubscribeFromUser(@AuthenticationPrincipal User currentUser,
+                                      @PathVariable("user") User user) {
+        userService.unsubscribe(currentUser, user);
+        return "redirect:/user/messages/" + user.getId();
+    }
+
+    @GetMapping("/{type}/{user}/list")
+    public String userList(@PathVariable String type,
+                           @PathVariable User user,
+                           Model model) {
+        model.addAttribute("userChannel", user);
+        model.addAttribute("type", type);
+        if ("subscriptions".equals(type)){
+            Set<User> subscriptions = user.getSubscriptions();
+            model.addAttribute("users", subscriptions);
+        }else{
+            Set<User> subscribers = user.getSubscribers();
+            model.addAttribute("users", subscribers);
+        }
+
+
+
+        return "subscriptions";
     }
 }
