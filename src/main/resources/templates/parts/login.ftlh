@@ -1,4 +1,6 @@
+<#include "security.ftlh">
 <#macro login path isRegisterForm>
+
     <form action="${path}" method="post">
         <div>
 
@@ -77,15 +79,15 @@
 
 <#macro logiout>
     <form action="/logout" method="post">
-        <button type="submit" class="btn btn-primary">Sign out</button>
+        <button type="submit" class="btn btn-primary"><#if user??>Sign out<#else>Sign in</#if></button>
         <input type="hidden" name="_csrf" value="${_csrf.token}">
     </form>
 </#macro>
 
-<#macro loginButton>
-    <form action="/login" method="post">
-    <button type="submit" class="btn btn-primary">Sign in</button>
-    <input type="hidden" name="_csrf" value="${_csrf.token}">
-    </form>
-</#macro>
+<#--<#macro loginButton>-->
+<#--    <form action="/login" method="post">-->
+<#--    <button type="submit" class="btn btn-primary">Sign in</button>-->
+<#--    <input type="hidden" name="_csrf" value="${_csrf.token}">-->
+<#--    </form>-->
+<#--</#macro>-->
 

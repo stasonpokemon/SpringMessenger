@@ -1,7 +1,7 @@
 <#include "security.ftlh">
-<div class="card-columns">
+<div class="card-columns" id="message-list">
     <#list messages as message>
-        <div class="card my-3">
+        <div class="card my-3" data-id="${message.id}">
             <div>
                 <#--            ?? - приведение к boolean type-->
                 <#if message.fileName??>
